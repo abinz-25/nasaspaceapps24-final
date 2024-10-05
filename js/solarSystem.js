@@ -16,8 +16,8 @@ const textureLoader = new THREE.TextureLoader();
 //////////////////////////////////////
 //NOTE import all texture
 const starTexture = textureLoader.load("./image/stars.jpg");
-const sunTexture = textureLoader.load("./image/sun.jpg");
-const mercuryTexture = textureLoader.load("./image/mercury.jpg");
+const sunTexture = textureLoader.load("./image/earth.jpg");
+const mercuryTexture = textureLoader.load("./image/moon.jpeg");
 const venusTexture = textureLoader.load("./image/venus.jpg");
 const earthTexture = textureLoader.load("./image/earth.jpg");
 const marsTexture = textureLoader.load("./image/mars.jpg");
