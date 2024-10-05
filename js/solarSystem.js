@@ -1,6 +1,40 @@
 //Import
 import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
 import { OrbitControls } from "https://unpkg.com/three@0.127.0/examples/jsm/controls/OrbitControls.js";
+
+const neoData = [
+  {
+    "object": "P/2004 R1 (McNaught)",
+    "epoch_tdb": "54629",
+    "tp_tdb": "2455248.548",
+    "e": "0.682526943",
+    "i_deg": "4.894555854",
+    "w_deg": "0.626837835",
+    "node_deg": "295.9854497",
+    "q_au_1": "0.986192006",
+    "q_au_2": "5.23",
+    "p_yr": "5.48",
+    "moid_au": "0.027011",
+    "ref": "20",
+    "object_name": "P/2004 R1 (McNaught)"
+  },
+  {
+    "object": "P/2008 S1 (Catalina-McNaught)",
+    "epoch_tdb": "55101",
+    "tp_tdb": "2454741.329",
+    "e": "0.6663127807",
+    "i_deg": "15.1007464",
+    "w_deg": "203.6490232",
+    "node_deg": "111.3920029",
+    "q_au_1": "1.190641555",
+    "q_au_2": "5.95",
+    "p_yr": "6.74",
+    "moid_au": "0.194101",
+    "ref": "13",
+    "object_name": "P/2008 S1 (Catalina-McNaught)"
+  },
+] 
+
 //////////////////////////////////////
 //NOTE Creating renderer
 const renderer = new THREE.WebGLRenderer();
@@ -208,6 +242,8 @@ const planets = [
   },
 ];
 
+renderNEOs(neoData);
+
 //////////////////////////////////////
 
 //////////////////////////////////////
@@ -255,3 +291,25 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 //////////////////////////////////////
+
+
+function renderNEOs(neoData) {
+  const neoGeometry = new THREE.SphereGeometry(32, 32, 32); // Small spheres for NEOs
+  const neoMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 }); // Red color for visibility
+
+  neoData.forEach(neo => {
+    const neoMesh = new THREE.Mesh(neoGeometry, neoMaterial);
+
+    // Assuming a simple distance calculation based on `q_au_1` (perihelion distance)
+    // Convert AU to kilometers (1 AU = 149.6 million km)
+    const distanceInKm = neo.q_au_1; 
+    neoMesh.position.set(distanceInKm, 0, 0); // Position NEO along the x-axis for simplicity
+
+    // Optionally add labels or other identifiers
+    const label = neo.object; // You can also create a 3D text label if desired.
+
+    scene.add(neoMesh);
+    console.log(`Added NEO: ${label} at distance: ${distanceInKm} km`);
+  });
+}
+
