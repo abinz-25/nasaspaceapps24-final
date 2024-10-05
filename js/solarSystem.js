@@ -4,36 +4,36 @@ import { OrbitControls } from "https://unpkg.com/three@0.127.0/examples/jsm/cont
 
 const neoData = [
   {
-    "object": "P/2004 R1 (McNaught)",
-    "epoch_tdb": "54629",
-    "tp_tdb": "2455248.548",
-    "e": "0.682526943",
-    "i_deg": "4.894555854",
-    "w_deg": "0.626837835",
-    "node_deg": "295.9854497",
-    "q_au_1": "0.986192006",
-    "q_au_2": "5.23",
-    "p_yr": "5.48",
-    "moid_au": "0.027011",
-    "ref": "20",
-    "object_name": "P/2004 R1 (McNaught)"
+    object: "P/2004 R1 (McNaught)",
+    epoch_tdb: "54629",
+    tp_tdb: "2455248.548",
+    e: "0.682526943",
+    i_deg: "4.894555854",
+    w_deg: "0.626837835",
+    node_deg: "295.9854497",
+    q_au_1: "0.986192006",
+    q_au_2: "5.23",
+    p_yr: "5.48",
+    moid_au: "0.027011",
+    ref: "20",
+    object_name: "P/2004 R1 (McNaught)",
   },
   {
-    "object": "P/2008 S1 (Catalina-McNaught)",
-    "epoch_tdb": "55101",
-    "tp_tdb": "2454741.329",
-    "e": "0.6663127807",
-    "i_deg": "15.1007464",
-    "w_deg": "203.6490232",
-    "node_deg": "111.3920029",
-    "q_au_1": "1.190641555",
-    "q_au_2": "5.95",
-    "p_yr": "6.74",
-    "moid_au": "0.194101",
-    "ref": "13",
-    "object_name": "P/2008 S1 (Catalina-McNaught)"
+    object: "P/2008 S1 (Catalina-McNaught)",
+    epoch_tdb: "55101",
+    tp_tdb: "2454741.329",
+    e: "0.6663127807",
+    i_deg: "15.1007464",
+    w_deg: "203.6490232",
+    node_deg: "111.3920029",
+    q_au_1: "1.190641555",
+    q_au_2: "5.95",
+    p_yr: "6.74",
+    moid_au: "0.194101",
+    ref: "13",
+    object_name: "P/2008 S1 (Catalina-McNaught)",
   },
-] 
+];
 
 //////////////////////////////////////
 //NOTE Creating renderer
@@ -153,7 +153,7 @@ function createLineLoopWithMesh(radius, color, width) {
 
 /////////////////////////////////////
 //NOTE: create planet
-const genratePlanet = (size, planetTexture, x, ring) => {
+const genratePlanet = (size, planetTexture, x, ring, neoData = null) => {
   const planetGeometry = new THREE.SphereGeometry(size, 50, 50);
   const planetMaterial = new THREE.MeshStandardMaterial({
     map: planetTexture,
@@ -161,6 +161,12 @@ const genratePlanet = (size, planetTexture, x, ring) => {
   const planet = new THREE.Mesh(planetGeometry, planetMaterial);
   const planetObj = new THREE.Object3D();
   planet.position.set(x, 0, 0);
+
+  if (neoData) {
+    planet.material.color.set(0xff0000); // Change color for NEOs
+    planet.scale.set(size * 0.5, size * 0.5, size * 0.5); // Scale down NEOs
+  }
+
   if (ring) {
     const ringGeo = new THREE.RingGeometry(
       ring.innerRadius,
@@ -176,10 +182,11 @@ const genratePlanet = (size, planetTexture, x, ring) => {
     ringMesh.position.set(x, 0, 0);
     ringMesh.rotation.x = -0.5 * Math.PI;
   }
-  scene.add(planetObj);
 
+  scene.add(planetObj);
   planetObj.add(planet);
   createLineLoopWithMesh(x, 0xffffff, 3);
+  
   return {
     planetObj: planetObj,
     planet: planet,
@@ -263,8 +270,8 @@ gui.add(options, "Show path").onChange((e) => {
     dpath.visible = e;
   });
 });
-const maxSpeed = new URL(window.location.href).searchParams.get("ms")*1
-gui.add(options, "speed", 0, maxSpeed?maxSpeed:20);
+const maxSpeed = new URL(window.location.href).searchParams.get("ms") * 1;
+gui.add(options, "speed", 0, maxSpeed ? maxSpeed : 20);
 
 //////////////////////////////////////
 
@@ -292,24 +299,13 @@ window.addEventListener("resize", () => {
 });
 //////////////////////////////////////
 
-
 function renderNEOs(neoData) {
-  const neoGeometry = new THREE.SphereGeometry(32, 32, 32); // Small spheres for NEOs
-  const neoMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 }); // Red color for visibility
-
-  neoData.forEach(neo => {
-    const neoMesh = new THREE.Mesh(neoGeometry, neoMaterial);
-
-    // Assuming a simple distance calculation based on `q_au_1` (perihelion distance)
-    // Convert AU to kilometers (1 AU = 149.6 million km)
-    const distanceInKm = neo.q_au_1; 
-    neoMesh.position.set(distanceInKm, 0, 0); // Position NEO along the x-axis for simplicity
-
-    // Optionally add labels or other identifiers
-    const label = neo.object; // You can also create a 3D text label if desired.
-
-    scene.add(neoMesh);
-    console.log(`Added NEO: ${label} at distance: ${distanceInKm} km`);
+  neoData.forEach((neo) => {
+    let size = 1; // Size for NEOs
+    const planetTexture = new THREE.TextureLoader().load("./image/moon.jpeg"); // Texture for NEOs
+    const x = 60 * size; // Position based on perihelion distance
+    size = size + 0.5; // Increase size for NEOs
+    let planet = genratePlanet(size, planetTexture, x, null, neo); // Render NEO
+    planets.push(planet);
   });
 }
-
