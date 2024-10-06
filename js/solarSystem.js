@@ -258,7 +258,7 @@ function renderNEOs(neoData) {
     let size = Math.random() * sizeFactor + 0.5; // Random size between 0.5 and `sizeFactor`
 
     const planetTexture = new THREE.TextureLoader().load(
-      "./image/assets/asteriods.jpg"
+      "./image/asteriods.jpg"
     ); // Texture for NEOs
 
     // Use perihelion distance (`q_au_1`) to calculate position (x)
