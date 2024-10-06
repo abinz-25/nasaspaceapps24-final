@@ -10,15 +10,15 @@ async function fetchNeoData() {
   try {
     // Fetch data from the API
     const response = await fetch(apiUrl);
-    
+
     // Check if the response is ok (status code 200-299)
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    
+
     // Parse the JSON data
     const neoData = await response.json();
-    
+
     // Store the fetched data in a variable
     console.log(neoData); // Output the fetched data
     return neoData;
@@ -30,12 +30,11 @@ async function fetchNeoData() {
 let neos = [];
 
 // Call the function to fetch and store the data
-fetchNeoData().then(res => {
+fetchNeoData().then((res) => {
   // You can now use `neoData` here
   neoData = res;
 
   neos = renderNEOs(neoData);
-
 });
 
 //////////////////////////////////////
@@ -138,7 +137,7 @@ function createLineLoopWithMesh(radius, color, width) {
 
   // Calculate points for the circular path
   const numSegments = 100; // Number of segments to create the circular path
-  const tiltFactor = 2; // Adjust this factor to control the tilt angle
+  const tiltFactor = 0.5; // Adjust this factor to control the tilt angle
   for (let i = 0; i <= numSegments; i++) {
     const angle = (i / numSegments) * Math.PI * 2;
     const x = radius * Math.cos(angle);
@@ -165,108 +164,11 @@ function createLineLoopWithMesh(radius, color, width) {
   path_of_planets.push(lineLoop);
 }
 
-//////////////////////////////////////
-
-/////////////////////////////////////
-//NOTE: create planet
-// Function to generate planets (without NEO-specific logic)
-const generatePlanet = (size, planetTexture, x, ring) => {
-  const planetGeometry = new THREE.SphereGeometry(size, 50, 50);
-  const planetMaterial = new THREE.MeshStandardMaterial({
-    map: planetTexture,
-  });
-  const planet = new THREE.Mesh(planetGeometry, planetMaterial);
-  const planetObj = new THREE.Object3D();
-  planet.position.set(x, 0, 0);
-
-  if (ring) {
-    const ringGeo = new THREE.RingGeometry(
-      ring.innerRadius,
-      ring.outerRadius,
-      32
-    );
-    const ringMat = new THREE.MeshBasicMaterial({
-      map: ring.ringmat,
-      side: THREE.DoubleSide,
-    });
-    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-    planetObj.add(ringMesh);
-    ringMesh.position.set(x, 0, 0);
-    ringMesh.rotation.x = -0.5 * Math.PI;
-  }
-
-  scene.add(planetObj);
-  planetObj.add(planet);
-  createLineLoopWithMesh(x, 0xffffff, 3); // Orbit
-
-  return {
-    planetObj: planetObj,
-    planet: planet,
-  };
-};
-
-const planets = [
-  // {
-  //   ...generatePlanet(3.2, mercuryTexture, 28),
-  //   rotaing_speed_around_sun: 0.004,
-  //   self_rotation_speed: 0.004,
-  // },
-  // {
-  //   ...generatePlanet(5.8, venusTexture, 44),
-  //   rotaing_speed_around_sun: 0.015,
-  //   self_rotation_speed: 0.002,
-  // },
-  // {
-  //   ...generatePlanet(6, earthTexture, 62),
-  //   rotaing_speed_around_sun: 0.01,
-  //   self_rotation_speed: 0.02,
-  // },
-  // {
-  //   ...generatePlanet(4, marsTexture, 78),
-  //   rotaing_speed_around_sun: 0.008,
-  //   self_rotation_speed: 0.018,
-  // },
-  // {
-  //   ...generatePlanet(12, jupiterTexture, 100),
-  //   rotaing_speed_around_sun: 0.002,
-  //   self_rotation_speed: 0.04,
-  // },
-  // {
-  //   ...generatePlanet(10, saturnTexture, 138, {
-  //     innerRadius: 10,
-  //     outerRadius: 20,
-  //     ringmat: saturnRingTexture,
-  //   }),
-  //   rotaing_speed_around_sun: 0.0009,
-  //   self_rotation_speed: 0.038,
-  // },
-  // {
-  //   ...generatePlanet(7, uranusTexture, 176, {
-  //     innerRadius: 7,
-  //     outerRadius: 12,
-  //     ringmat: uranusRingTexture,
-  //   }),
-  //   rotaing_speed_around_sun: 0.0004,
-  //   self_rotation_speed: 0.03,
-  // },
-  // {
-  //   ...generatePlanet(7, neptuneTexture, 200),
-  //   rotaing_speed_around_sun: 0.0001,
-  //   self_rotation_speed: 0.032,
-  // },
-  // {
-  //   ...generatePlanet(2.8, plutoTexture, 216),
-  //   rotaing_speed_around_sun: 0.0007,
-  //   self_rotation_speed: 0.008,
-  // },
-];
-
 // Function to generate a Near-Earth Object (NEO)
-const generateNEO = (size, texture, x) => {
+const generateNEO = (size, texture, x, name = "") => {
   const neoGeometry = new THREE.SphereGeometry(size * 0.5, 50, 50); // Smaller size for NEO
   const neoMaterial = new THREE.MeshStandardMaterial({
     map: texture,
-    // color: 0xff0000, // Red color for NEOs
   });
   const neo = new THREE.Mesh(neoGeometry, neoMaterial);
   neo.position.set(x, 0, 0);
@@ -277,13 +179,17 @@ const generateNEO = (size, texture, x) => {
 
   createLineLoopWithMesh(x, 0x008000, 1); // Custom color and smaller orbit for NEO
 
+  // Create a sprite to display the name of the NEO
+  const nameSprite = createTextSprite(name);
+  nameSprite.position.set(neo.position.x, size * 1.2, neo.position.z); // Position label slightly above the NEO
+  neoObj.add(nameSprite); // Add the name sprite to the same object group
+
   return {
     neoObj: neoObj,
     neo: neo,
+    nameSprite: nameSprite, // Return the sprite for dynamic updates
   };
 };
-
-//////////////////////////////////////
 
 //////////////////////////////////////
 //NOTE - GUI options
@@ -311,23 +217,26 @@ gui.add(options, "speed", 0, maxSpeed ? maxSpeed : 20);
 //NOTE - animate function
 function animate(time) {
   sun.rotateY(options.speed * 0.004);
-  planets.forEach(
-    ({ planetObj, planet, rotaing_speed_around_sun, self_rotation_speed }) => {
-      planetObj.rotateY(options.speed * rotaing_speed_around_sun);
-      planet.rotateY(options.speed * self_rotation_speed);
-    }
-  );
+  // planets.forEach(
+  //   ({ planetObj, planet, rotaing_speed_around_sun, self_rotation_speed }) => {
+  //     planetObj.rotateY(options.speed * rotaing_speed_around_sun);
+  //     planet.rotateY(options.speed * self_rotation_speed);
+  //   }
+  // );
 
-  // Update the rotation and position of NEOs
-  neos.forEach(
-    ({ neoObj, neo, rotaing_speed_around_sun, self_rotation_speed }) => {
-      // Rotate around the sun
-      neoObj.rotateY(options.speed * rotaing_speed_around_sun);
+ // Update the rotation and position of NEOs and their name sprites
+ neos.forEach(
+  ({ neoObj, neo, nameSprite, size, rotaing_speed_around_sun, self_rotation_speed }) => {
+    // Rotate around the sun
+    neoObj.rotateY(options.speed * rotaing_speed_around_sun);
 
-      // Self-rotation of the NEO
-      neo.rotateY(options.speed * self_rotation_speed);
-    }
-  );
+    // Self-rotation of the NEO
+    neo.rotateY(options.speed * self_rotation_speed);
+
+    // Update the name sprite's position to follow the NEO
+    nameSprite.position.set(neo.position.x, neo.position.y + size * 1.2, neo.position.z);
+  }
+);
 
   renderer.render(scene, camera);
 }
@@ -356,7 +265,9 @@ function renderNEOs(neoData) {
     const sizeFactor = (eccentricity + inclination + moid) / 10;
     let size = Math.random() * sizeFactor + 0.5; // Random size between 0.5 and `sizeFactor`
 
-    const planetTexture = new THREE.TextureLoader().load("./image/assets/asteriods.jpg"); // Texture for NEOs
+    const planetTexture = new THREE.TextureLoader().load(
+      "./image/assets/asteriods.jpg"
+    ); // Texture for NEOs
 
     // Use perihelion distance (`q_au_1`) to calculate position (x)
     const distanceAU = parseFloat(neo.q_au_1); // Parse perihelion distance in AU
@@ -371,7 +282,7 @@ function renderNEOs(neoData) {
     size = size + 0.5; // Increase size for NEOs
 
     // Generate NEO using the generateNEO function
-    const neoObj = generateNEO(size, planetTexture, x);
+    const neoObj = generateNEO(size, planetTexture, x, neo.object_name); // Generate NEO with name
 
     // Generate a random self-rotation speed
     // Assuming NEOs rotate faster if they're smaller (inverse of size)
@@ -390,3 +301,20 @@ function renderNEOs(neoData) {
 
   return neos_array; // Return the array of generated NEOs
 }
+
+// Function to create a sprite for text (NEO name)
+const createTextSprite = (text) => {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  context.font = "48px Arial"; // Define font size and style
+  context.fillStyle = "white"; // Text color
+  context.fillText(text, 0, 50); // Draw text on canvas
+
+  const texture = new THREE.CanvasTexture(canvas);
+  const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+  const sprite = new THREE.Sprite(spriteMaterial);
+
+  sprite.scale.set(10, 5, 1); // Adjust scale for visibility
+
+  return sprite;
+};
