@@ -209,12 +209,6 @@ gui.add(options, "speed", 0, maxSpeed ? maxSpeed : 20);
 //NOTE - animate function
 function animate(time) {
   sun.rotateY(options.speed * 0.004);
-  // planets.forEach(
-  //   ({ planetObj, planet, rotaing_speed_around_sun, self_rotation_speed }) => {
-  //     planetObj.rotateY(options.speed * rotaing_speed_around_sun);
-  //     planet.rotateY(options.speed * self_rotation_speed);
-  //   }
-  // );
 
  // Update the rotation and position of NEOs and their name sprites
  neos.forEach(
