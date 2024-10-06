@@ -138,7 +138,7 @@ function createLineLoopWithMesh(radius, color, width) {
 
   // Calculate points for the circular path
   const numSegments = 100; // Number of segments to create the circular path
-  const tiltFactor = 2; // Adjust this factor to control the tilt angle
+  const tiltFactor = 0.5; // Adjust this factor to control the tilt angle
   for (let i = 0; i <= numSegments; i++) {
     const angle = (i / numSegments) * Math.PI * 2;
     const x = radius * Math.cos(angle);
