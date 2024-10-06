@@ -53,17 +53,7 @@ const textureLoader = new THREE.TextureLoader();
 //NOTE import all texture
 const starTexture = textureLoader.load("./image/stars.jpg");
 const sunTexture = textureLoader.load("./image/earth.jpg");
-const mercuryTexture = textureLoader.load("./image/moon.jpeg");
-const venusTexture = textureLoader.load("./image/assets/asteriods.jpg");
-const earthTexture = textureLoader.load("image/assets/images (1).jpeg");
-const marsTexture = textureLoader.load("image/assets/images (2).jpeg");
-const jupiterTexture = textureLoader.load("image/assets/images (3).jpeg");
-const saturnTexture = textureLoader.load("./image/saturn.jpg");
-const uranusTexture = textureLoader.load("./image/uranus.jpg");
-const neptuneTexture = textureLoader.load("./image/neptune.jpg");
-const plutoTexture = textureLoader.load("./image/pluto.jpg");
-const saturnRingTexture = textureLoader.load("./image/saturn_ring.png");
-const uranusRingTexture = textureLoader.load("./image/uranus_ring.png");
+
 //////////////////////////////////////
 
 //////////////////////////////////////
@@ -82,7 +72,8 @@ const cubeTexture = cubeTextureLoader.load([
   starTexture,
   starTexture,
 ]);
-scene.background = cubeTexture;
+console.log("Apply cube texture",cubeTexture);
+scene.background = starTexture; // Set the background to the star texture
 //////////////////////////////////////
 
 //////////////////////////////////////
