@@ -187,7 +187,8 @@ const generateNEO = (size, texture, x, name = "") => {
   return {
     neoObj: neoObj,
     neo: neo,
-    nameSprite: nameSprite, // Return the sprite for dynamic updates
+    nameSprite: nameSprite,
+    size: size // Return the sprite for dynamic updates
   };
 };
 
